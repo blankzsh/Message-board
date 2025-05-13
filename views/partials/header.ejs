@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | 留言板</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="glass-container">
+    <header class="header">
+      <div class="logo">
+        <h1><a href="/">留言板</a></h1>
+      </div>
+      <nav class="nav">
+        <ul>
+          <li><a href="/" class="nav-link"><i class="fas fa-home"></i> 首页</a></li>
+          <% if (typeof admin !== 'undefined') { %>
+            <li><a href="/admin/dashboard" class="nav-link"><i class="fas fa-tachometer-alt"></i> 管理面板</a></li>
+            <li><a href="/admin/pending" class="nav-link"><i class="fas fa-clock"></i> 待审核</a></li>
+            <% if (admin.is_super === 1) { %>
+              <li><a href="/admin/manage-admins" class="nav-link"><i class="fas fa-users-cog"></i> 管理员管理</a></li>
+            <% } %>
+            <li><a href="/admin/change-password" class="nav-link"><i class="fas fa-key"></i> 修改密码</a></li>
+            <li><a href="/admin/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> 登出</a></li>
+          <% } else { %>
+            <li><a href="/admin/login" class="nav-link admin-link"><i class="fas fa-user-shield"></i> 管理员入口</a></li>
+          <% } %>
+        </ul>
+      </nav>
+    </header>
+    <main class="main-content"> 

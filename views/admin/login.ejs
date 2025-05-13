@@ -1,0 +1,367 @@
+<%- include('../partials/header') %>
+
+<div class="admin-login-container">
+  <section class="login-section glass-card">
+    <div class="login-header">
+      <div class="login-icon">
+        <i class="fas fa-user-shield"></i>
+      </div>
+      <h2>管理员登录</h2>
+      <p class="login-subtitle">请输入您的管理员凭据以访问后台</p>
+    </div>
+    
+    <% if (error) { %>
+      <div class="alert alert-danger">
+        <i class="fas fa-exclamation-circle"></i> <%= error %>
+      </div>
+    <% } %>
+    
+    <form action="/admin/login" method="POST" class="login-form" id="loginForm">
+      <div class="form-group">
+        <label for="username">用户名</label>
+        <div class="input-with-icon">
+          <i class="fas fa-user"></i>
+          <input type="text" id="username" name="username" required placeholder="输入管理员用户名" autocomplete="off">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">密码</label>
+        <div class="input-with-icon">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="password" name="password" required placeholder="输入管理员密码">
+          <span class="password-toggle" id="passwordToggle">
+            <i class="fas fa-eye"></i>
+          </span>
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary login-btn" id="loginButton">
+          <i class="fas fa-sign-in-alt"></i> 登录系统
+        </button>
+      </div>
+    </form>
+    
+    <div class="login-footer">
+      <a href="/" class="back-to-home">
+        <i class="fas fa-arrow-left"></i> 返回首页
+      </a>
+    </div>
+  </section>
+  
+  <div class="login-decoration">
+    <div class="decoration-circle circle-1"></div>
+    <div class="decoration-circle circle-2"></div>
+    <div class="decoration-circle circle-3"></div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('loginForm');
+    const loginButton = document.getElementById('loginButton');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const passwordToggle = document.getElementById('passwordToggle');
+    
+    // 页面加载时设置焦点和动画
+    setTimeout(() => {
+      document.querySelector('.login-section').classList.add('fade-in');
+      usernameInput.focus();
+    }, 300);
+    
+    // 密码可见性切换
+    let passwordVisible = false;
+    passwordToggle.addEventListener('click', () => {
+      passwordVisible = !passwordVisible;
+      
+      if (passwordVisible) {
+        passwordInput.type = 'text';
+        passwordToggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
+      } else {
+        passwordInput.type = 'password';
+        passwordToggle.innerHTML = '<i class="fas fa-eye"></i>';
+      }
+      
+      // 保持焦点在密码输入框
+      passwordInput.focus();
+    });
+    
+    // 按钮动画效果
+    function addLoadingState() {
+      loginButton.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> 登录中...';
+      loginButton.disabled = true;
+      loginButton.style.opacity = '0.8';
+    }
+    
+    // 表单提交处理
+    loginForm.addEventListener('submit', (e) => {
+      // 验证表单
+      if (!usernameInput.value.trim() || !passwordInput.value.trim()) {
+        e.preventDefault();
+        
+        if (!usernameInput.value.trim()) {
+          usernameInput.parentNode.classList.add('input-error');
+          usernameInput.parentNode.classList.add('shake-animation');
+          setTimeout(() => {
+            usernameInput.parentNode.classList.remove('shake-animation');
+          }, 500);
+        }
+        
+        if (!passwordInput.value.trim()) {
+          passwordInput.parentNode.classList.add('input-error');
+          passwordInput.parentNode.classList.add('shake-animation');
+          setTimeout(() => {
+            passwordInput.parentNode.classList.remove('shake-animation');
+          }, 500);
+        }
+        
+        return;
+      }
+      
+      // 添加加载状态
+      addLoadingState();
+    });
+    
+    // 输入框动画效果
+    [usernameInput, passwordInput].forEach(input => {
+      // 改善输入框动画
+      input.addEventListener('focus', () => {
+        // 移除所有其他输入框的焦点类
+        document.querySelectorAll('.input-with-icon').forEach(el => {
+          el.classList.remove('input-focus');
+        });
+        
+        // 添加当前输入框的焦点类
+        input.parentNode.classList.remove('input-error');
+        input.parentNode.classList.add('input-focus');
+        
+        // 同时更新相应的标签
+        const label = input.parentNode.previousElementSibling;
+        if (label && label.tagName === 'LABEL') {
+          document.querySelectorAll('.form-group label').forEach(el => {
+            el.classList.remove('label-focus');
+          });
+          label.classList.add('label-focus');
+        }
+      });
+      
+      input.addEventListener('blur', () => {
+        const hasValue = input.value.trim() !== '';
+        
+        if (!hasValue) {
+          input.parentNode.classList.remove('input-focus');
+          
+          // 同时更新相应的标签
+          const label = input.parentNode.previousElementSibling;
+          if (label && label.tagName === 'LABEL') {
+            label.classList.remove('label-focus');
+          }
+        }
+      });
+      
+      // 添加输入动画效果
+      input.addEventListener('input', () => {
+        if (input.value.trim() !== '') {
+          input.parentNode.classList.add('has-content');
+        } else {
+          input.parentNode.classList.remove('has-content');
+        }
+      });
+    });
+    
+    // 装饰圆圈动画效果（随鼠标移动）
+    const loginSection = document.querySelector('.login-section');
+    const circles = document.querySelectorAll('.decoration-circle');
+    
+    loginSection.addEventListener('mousemove', (e) => {
+      const x = e.clientX;
+      const y = e.clientY;
+      
+      circles.forEach((circle, index) => {
+        const factor = (index + 1) * 10;
+        const xOffset = (x - window.innerWidth / 2) / factor;
+        const yOffset = (y - window.innerHeight / 2) / factor;
+        
+        circle.style.transform = `translate(${xOffset}px, ${yOffset}px)`;
+      });
+    });
+  });
+</script>
+
+<style>
+  /* 登录界面特有的样式 */
+  .admin-login-container {
+    position: relative;
+    max-width: 500px;
+    margin: 50px auto;
+    z-index: 1;
+  }
+  
+  .login-section {
+    padding: 40px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 60, 0.15),
+      0 0 20px rgba(0, 0, 80, 0.1),
+      inset 0 0 20px rgba(255, 255, 255, 0.5);
+    overflow: hidden;
+    position: relative;
+    z-index: 10;
+    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  
+  .fade-in {
+    animation: fadeIn 0.6s ease forwards;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .login-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .login-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #4a6fa5, #ff7e5f);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 25px rgba(74, 111, 165, 0.3);
+    animation: iconPulse 2s infinite alternate ease-in-out;
+  }
+  
+  @keyframes iconPulse {
+    0% { transform: scale(1); box-shadow: 0 10px 25px rgba(74, 111, 165, 0.3); }
+    100% { transform: scale(1.05); box-shadow: 0 15px 35px rgba(74, 111, 165, 0.4); }
+  }
+  
+  .login-icon i {
+    font-size: 32px;
+    color: white;
+  }
+  
+  .login-footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(51, 51, 51, 0.1);
+  }
+  
+  .back-to-home {
+    color: #4a6fa5;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 15px;
+    border-radius: 20px;
+  }
+  
+  .back-to-home:hover {
+    background: rgba(74, 111, 165, 0.1);
+    transform: translateX(-3px);
+  }
+  
+  .back-to-home i {
+    margin-right: 6px;
+  }
+  
+  .login-decoration {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+  }
+  
+  .decoration-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(45deg, rgba(74, 111, 165, 0.1), rgba(255, 126, 95, 0.1));
+    filter: blur(30px);
+  }
+  
+  .decoration-circle.circle-1 {
+    width: 300px;
+    height: 300px;
+    top: -150px;
+    right: -150px;
+    animation: floatCircle 15s infinite alternate ease-in-out;
+  }
+  
+  .decoration-circle.circle-2 {
+    width: 200px;
+    height: 200px;
+    bottom: -100px;
+    left: -100px;
+    animation: floatCircle 12s infinite alternate-reverse ease-in-out;
+  }
+  
+  .decoration-circle.circle-3 {
+    width: 150px;
+    height: 150px;
+    top: 50%;
+    left: 60%;
+    animation: floatCircle 10s infinite alternate ease-in-out;
+    animation-delay: 2s;
+  }
+  
+  @keyframes floatCircle {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(20px, -20px) scale(1.05); }
+    100% { transform: translate(-20px, 20px) scale(0.95); }
+  }
+  
+  /* 输入框特有的样式 */
+  .has-content i {
+    color: #4a6fa5;
+  }
+  
+  .login-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+  }
+  
+  .login-btn:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+    z-index: -1;
+    transition: all 0.6s ease;
+  }
+  
+  .login-btn:hover {
+    transform: translateY(-3px);
+  }
+  
+  .login-btn:hover:before {
+    left: 100%;
+  }
+</style>
+
+<%- include('../partials/footer') %> 

@@ -1,0 +1,35 @@
+<%- include('partials/header') %>
+
+<section class="success-section glass-card">
+  <div class="success-container">
+    <div class="success-icon">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <h2 class="success-title"><%= title %></h2>
+    <p class="success-message"><%= message %></p>
+    <p class="redirect-message">将在 <span id="countdown"><%= redirectTime %></span> 秒后自动跳转...</p>
+    <div class="success-actions">
+      <a href="<%= redirectUrl %>" class="btn btn-primary">
+        <i class="fas fa-arrow-right"></i> 立即跳转
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  // 倒计时重定向
+  let countdown = parseInt('<%= redirectTime %>');
+  const countdownElement = document.getElementById('countdown');
+  
+  const timer = setInterval(() => {
+    countdown--;
+    countdownElement.textContent = countdown;
+    
+    if (countdown <= 0) {
+      clearInterval(timer);
+      window.location.href = '<%= redirectUrl %>';
+    }
+  }, 1000);
+</script>
+
+<%- include('partials/footer') %> 

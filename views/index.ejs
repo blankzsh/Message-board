@@ -1,0 +1,217 @@
+<%- include('partials/header') %>
+
+<section class="hero-section glass-card">
+  <div class="hero-content">
+    <h1 class="hero-title">欢迎来到留言板</h1>
+    <p class="hero-description">在这里你可以分享你的想法、建议或感受。我们重视每一条留言，并会定期回复。</p>
+    <div class="hero-actions">
+      <a href="#message-form" class="btn btn-primary">
+        <i class="fas fa-pen-fancy"></i> 立即留言
+      </a>
+      <a href="#message-list" class="btn btn-secondary">
+        <i class="fas fa-comments"></i> 查看留言
+      </a>
+    </div>
+  </div>
+  <div class="hero-decoration">
+    <div class="decoration-circle circle-1"></div>
+    <div class="decoration-circle circle-2"></div>
+    <div class="decoration-circle circle-3"></div>
+  </div>
+</section>
+
+<section class="messages-section" id="message-list">
+  <h2>留言列表</h2>
+  
+  <% if (messages && messages.length > 0) { %>
+    <div class="message-list">
+      <% messages.forEach(message => { %>
+        <div class="message-card glass-card">
+          <div class="message-header">
+            <div class="user-info">
+              <% if (message.avatar) { %>
+                <div class="avatar">
+                  <img src="<%= message.avatar %>" alt="<%= message.name %>" loading="lazy">
+                </div>
+              <% } else { %>
+                <div class="avatar-placeholder">
+                  <i class="fas fa-user"></i>
+                </div>
+              <% } %>
+              <div>
+                <h3 class="user-name"><%= message.name %></h3>
+                <% if (message.email) { %>
+                  <p class="user-email"><i class="fas fa-envelope"></i> <%= message.email %></p>
+                <% } %>
+              </div>
+            </div>
+            <div class="message-date">
+              <i class="fas fa-calendar-alt"></i> <%= new Date(message.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+            </div>
+          </div>
+          
+          <div class="message-content">
+            <p><%= message.content %></p>
+          </div>
+          
+          <% if (message.reply) { %>
+            <div class="message-reply">
+              <div class="reply-header">
+                <div class="reply-icon">
+                  <i class="fas fa-reply"></i> 管理员回复
+                </div>
+                <span class="reply-date">
+                  <i class="fas fa-clock"></i> <%= message.reply_at ? new Date(message.reply_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }) : '' %>
+                </span>
+              </div>
+              <p><%= message.reply %></p>
+            </div>
+          <% } %>
+        </div>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <div class="no-messages">
+      <p>暂无留言，快来成为第一个留言的人吧！</p>
+      <a href="#message-form" class="btn btn-primary">
+        <i class="fas fa-pen-fancy"></i> 立即留言
+      </a>
+    </div>
+  <% } %>
+</section>
+
+<section class="submit-section glass-card" id="message-form">
+  <h2>发表留言</h2>
+  <form action="/submit" method="POST" enctype="multipart/form-data" class="message-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="name">姓名 <span class="required">*</span></label>
+        <div class="input-with-icon">
+          <i class="fas fa-user"></i>
+          <input type="text" id="name" name="name" required placeholder="请输入您的姓名">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">邮箱</label>
+        <div class="input-with-icon">
+          <i class="fas fa-envelope"></i>
+          <input type="email" id="email" name="email" placeholder="选填，方便联系您">
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="avatar">头像</label>
+      <div class="file-upload-container">
+        <input type="file" id="avatar" name="avatar" accept="image/*" class="file-upload-input">
+        <div class="file-upload-button">
+          <i class="fas fa-cloud-upload-alt"></i> 选择头像图片
+        </div>
+        <div class="file-name"></div>
+      </div>
+      <small>支持jpg、png、gif等图片格式，不超过2MB</small>
+    </div>
+    
+    <div class="form-group">
+      <label for="content">留言内容 <span class="required">*</span></label>
+      <div class="textarea-with-icon">
+        <i class="fas fa-comment-alt"></i>
+        <textarea id="content" name="content" rows="5" required placeholder="分享您的想法..."></textarea>
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-paper-plane"></i> 提交留言
+      </button>
+      <button type="reset" class="btn btn-secondary">
+        <i class="fas fa-redo"></i> 重置
+      </button>
+    </div>
+  </form>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // 文件名显示
+    const fileInput = document.getElementById('avatar');
+    const fileNameDisplay = document.querySelector('.file-name');
+    const fileUploadButton = document.querySelector('.file-upload-button');
+    
+    if (fileInput && fileNameDisplay && fileUploadButton) {
+      fileUploadButton.addEventListener('click', () => {
+        fileInput.click();
+      });
+      
+      fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+          fileNameDisplay.textContent = fileInput.files[0].name;
+          fileNameDisplay.style.display = 'block';
+          fileUploadButton.innerHTML = '<i class="fas fa-check"></i> 已选择文件';
+          fileUploadButton.style.background = 'rgba(76, 175, 80, 0.1)';
+          fileUploadButton.style.borderColor = 'rgba(76, 175, 80, 0.3)';
+          fileUploadButton.style.color = '#4caf50';
+        } else {
+          fileNameDisplay.textContent = '';
+          fileNameDisplay.style.display = 'none';
+          fileUploadButton.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> 选择头像图片';
+          fileUploadButton.style.background = '';
+          fileUploadButton.style.borderColor = '';
+          fileUploadButton.style.color = '';
+        }
+      });
+    }
+    
+    // 添加淡入动画效果
+    const messageCards = document.querySelectorAll('.message-card');
+    messageCards.forEach((card, index) => {
+      setTimeout(() => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+          card.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        }, 100);
+      }, index * 150);
+    });
+    
+    // 输入框效果
+    const inputFields = document.querySelectorAll('input[type="text"], input[type="email"], textarea');
+    inputFields.forEach(input => {
+      input.addEventListener('focus', () => {
+        const label = input.closest('.form-group').querySelector('label');
+        if (label) {
+          label.style.color = '#4a6fa5';
+          label.style.transform = 'translateY(-3px)';
+          label.style.transition = 'all 0.3s ease';
+        }
+      });
+      
+      input.addEventListener('blur', () => {
+        const label = input.closest('.form-group').querySelector('label');
+        if (label && !input.value) {
+          label.style.color = '';
+          label.style.transform = '';
+        }
+      });
+    });
+    
+    // 提交按钮效果
+    const submitButton = document.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.addEventListener('mouseenter', () => {
+        submitButton.querySelector('i').style.transform = 'translateX(3px)';
+        submitButton.querySelector('i').style.transition = 'all 0.3s ease';
+      });
+      
+      submitButton.addEventListener('mouseleave', () => {
+        submitButton.querySelector('i').style.transform = '';
+      });
+    }
+  });
+</script>
+
+<%- include('partials/footer') %> 

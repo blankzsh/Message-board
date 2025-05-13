@@ -1,0 +1,230 @@
+<%- include('../partials/header') %>
+
+<div class="manage-admins-container">
+  <section class="dashboard-header">
+    <h2>管理员管理</h2>
+    <p>管理系统中的管理员账号</p>
+  </section>
+  
+  <% if (success) { %>
+    <div class="alert alert-success">
+      <i class="fas fa-check-circle"></i> <%= success %>
+    </div>
+  <% } %>
+  
+  <% if (error) { %>
+    <div class="alert alert-danger">
+      <i class="fas fa-exclamation-circle"></i> <%= error %>
+    </div>
+  <% } %>
+  
+  <div class="admins-controls glass-card">
+    <div class="controls-left">
+      <h3><i class="fas fa-users-cog"></i> 管理员列表</h3>
+    </div>
+    <div class="controls-right">
+      <a href="/admin/add-admin" class="btn btn-primary">
+        <i class="fas fa-user-plus"></i> 添加管理员
+      </a>
+    </div>
+  </div>
+
+  <div class="admins-list glass-card">
+    <% if (admins && admins.length > 0) { %>
+      <table class="admins-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>用户名</th>
+            <th>类型</th>
+            <th>创建时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% admins.forEach(adminItem => { %>
+            <tr class="<%= adminItem.id === admin.id ? 'current-admin' : '' %>">
+              <td><%= adminItem.id %></td>
+              <td>
+                <%= adminItem.username %>
+                <% if (adminItem.id === admin.id) { %>
+                  <span class="current-badge">当前</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (adminItem.is_super === 1) { %>
+                  <span class="admin-badge super"><i class="fas fa-crown"></i> 超级管理员</span>
+                <% } else { %>
+                  <span class="admin-badge"><i class="fas fa-user-shield"></i> 普通管理员</span>
+                <% } %>
+              </td>
+              <td><%= new Date(adminItem.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }) %></td>
+              <td>
+                <% if (adminItem.id !== admin.id) { %>
+                  <form action="/admin/delete-admin/<%= adminItem.id %>" method="POST" class="delete-form" onsubmit="return confirm('您确定要删除这个管理员账号吗？此操作不可撤销。');">
+                    <button type="submit" class="btn btn-danger btn-sm">
+                      <i class="fas fa-trash-alt"></i> 删除
+                    </button>
+                  </form>
+                <% } else { %>
+                  <span class="action-disabled">无法删除</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <div class="empty-state">
+        <i class="fas fa-users-slash"></i>
+        <h3>暂无管理员</h3>
+        <p>当前系统中没有其他管理员账号</p>
+        <a href="/admin/add-admin" class="btn btn-primary">
+          <i class="fas fa-user-plus"></i> 添加管理员
+        </a>
+      </div>
+    <% } %>
+  </div>
+  
+  <div class="admin-tips glass-card">
+    <h4><i class="fas fa-info-circle"></i> 提示</h4>
+    <ul>
+      <li>超级管理员可以添加和删除其他管理员账号</li>
+      <li>不能删除当前登录的管理员账号</li>
+      <li>请妥善保管管理员账号信息，防止泄露</li>
+    </ul>
+  </div>
+  
+  <div class="form-actions">
+    <a href="/admin/dashboard" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> 返回仪表盘
+    </a>
+  </div>
+</div>
+
+<style>
+  .manage-admins-container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .admins-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    margin-bottom: 25px;
+  }
+  
+  .controls-left h3 {
+    margin: 0;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    color: #4a6fa5;
+  }
+  
+  .controls-left h3 i {
+    margin-right: 10px;
+  }
+  
+  .admins-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .admins-table th,
+  .admins-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .admins-table th {
+    font-weight: 600;
+    color: #4a6fa5;
+    background: rgba(74, 111, 165, 0.05);
+  }
+  
+  .admins-table tr:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+  
+  .admins-table tr.current-admin {
+    background: rgba(74, 111, 165, 0.05);
+  }
+  
+  .admin-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    background: rgba(107, 114, 128, 0.1);
+    color: #666;
+  }
+  
+  .admin-badge.super {
+    background: rgba(255, 126, 95, 0.1);
+    color: #ff7e5f;
+  }
+  
+  .admin-badge i {
+    margin-right: 5px;
+  }
+  
+  .current-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 11px;
+    background: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+  }
+  
+  .btn-sm {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  
+  .action-disabled {
+    color: #999;
+    font-size: 13px;
+    font-style: italic;
+  }
+  
+  .admin-tips {
+    margin: 30px 0;
+    padding: 20px;
+  }
+  
+  .admin-tips h4 {
+    display: flex;
+    align-items: center;
+    margin: 0 0 15px;
+    color: #4a6fa5;
+    font-size: 16px;
+  }
+  
+  .admin-tips h4 i {
+    margin-right: 8px;
+  }
+  
+  .admin-tips ul {
+    margin: 0;
+    padding-left: 25px;
+  }
+  
+  .admin-tips li {
+    margin-bottom: 8px;
+    color: rgba(51, 51, 51, 0.8);
+    font-size: 14px;
+  }
+  
+  .delete-form {
+    display: inline;
+  }
+</style>
+
+<%- include('../partials/footer') %> 

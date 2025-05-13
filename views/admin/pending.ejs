@@ -1,0 +1,206 @@
+<%- include('../partials/header') %>
+
+<section class="dashboard-header">
+  <h2>待审核留言</h2>
+  <p>这些留言需要您的审核才能在前台显示</p>
+</section>
+
+<section class="pending-messages">
+  <% if (messages && messages.length > 0) { %>
+    <div class="admin-message-list">
+      <% messages.forEach(message => { %>
+        <div class="admin-message-card glass-card">
+          <div class="message-header">
+            <div class="user-info">
+              <% if (message.avatar) { %>
+                <img src="<%= message.avatar %>" alt="<%= message.name %>" class="avatar">
+              <% } else { %>
+                <div class="avatar-placeholder">
+                  <i class="fas fa-user"></i>
+                </div>
+              <% } %>
+              <div>
+                <h3 class="user-name"><%= message.name %></h3>
+                <% if (message.email) { %>
+                  <p class="user-email"><%= message.email %></p>
+                <% } %>
+              </div>
+            </div>
+            <div class="message-date">
+              <%= new Date(message.created_at).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+            </div>
+          </div>
+          
+          <div class="message-content">
+            <p><%= message.content %></p>
+          </div>
+          
+          <div class="message-actions">
+            <button class="btn btn-success btn-approve" data-id="<%= message.id %>">
+              <i class="fas fa-check"></i> 批准
+            </button>
+            
+            <button class="btn btn-primary btn-reply" data-id="<%= message.id %>">
+              <i class="fas fa-reply"></i> 回复并批准
+            </button>
+            
+            <button class="btn btn-danger btn-delete" data-id="<%= message.id %>">
+              <i class="fas fa-trash"></i> 删除
+            </button>
+          </div>
+          
+          <div class="reply-form" style="display: none;">
+            <textarea name="reply" rows="3" placeholder="输入回复内容..."></textarea>
+            <div class="reply-actions">
+              <button class="btn btn-primary btn-reply-approve" data-id="<%= message.id %>">回复并批准</button>
+              <button class="btn btn-secondary btn-cancel-reply">取消</button>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <div class="no-messages glass-card">
+      <div class="empty-state">
+        <i class="fas fa-check-circle"></i>
+        <h3>没有待审核的留言</h3>
+        <p>当前没有需要审核的留言</p>
+        <a href="/admin/dashboard" class="btn btn-primary">
+          <i class="fas fa-arrow-left"></i> 返回管理面板
+        </a>
+      </div>
+    </div>
+  <% } %>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // 批准留言
+    document.querySelectorAll('.btn-approve').forEach(button => {
+      button.addEventListener('click', async () => {
+        if (confirm('确定要批准这条留言吗？')) {
+          const id = button.dataset.id;
+          
+          try {
+            const response = await fetch(`/admin/approve/${id}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert('留言已批准');
+              location.reload();
+            } else {
+              alert('操作失败: ' + result.message);
+            }
+          } catch (error) {
+            alert('操作出错: ' + error.message);
+          }
+        }
+      });
+    });
+    
+    // 删除留言
+    document.querySelectorAll('.btn-delete').forEach(button => {
+      button.addEventListener('click', async () => {
+        if (confirm('确定要删除这条留言吗？此操作不可恢复。')) {
+          const id = button.dataset.id;
+          
+          try {
+            const response = await fetch(`/admin/delete/${id}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert('留言已删除');
+              location.reload();
+            } else {
+              alert('操作失败: ' + result.message);
+            }
+          } catch (error) {
+            alert('操作出错: ' + error.message);
+          }
+        }
+      });
+    });
+    
+    // 显示回复表单
+    document.querySelectorAll('.btn-reply').forEach(button => {
+      button.addEventListener('click', () => {
+        const messageCard = button.closest('.admin-message-card');
+        const replyForm = messageCard.querySelector('.reply-form');
+        
+        replyForm.style.display = 'block';
+      });
+    });
+    
+    // 取消回复
+    document.querySelectorAll('.btn-cancel-reply').forEach(button => {
+      button.addEventListener('click', () => {
+        const replyForm = button.closest('.reply-form');
+        replyForm.style.display = 'none';
+      });
+    });
+    
+    // 回复并批准
+    document.querySelectorAll('.btn-reply-approve').forEach(button => {
+      button.addEventListener('click', async () => {
+        const id = button.dataset.id;
+        const messageCard = button.closest('.admin-message-card');
+        const replyText = messageCard.querySelector('.reply-form textarea').value;
+        
+        if (!replyText.trim()) {
+          alert('回复内容不能为空');
+          return;
+        }
+        
+        try {
+          // 先添加回复
+          const replyResponse = await fetch(`/admin/reply/${id}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reply: replyText })
+          });
+          
+          const replyResult = await replyResponse.json();
+          
+          if (replyResult.success) {
+            // 再批准留言
+            const approveResponse = await fetch(`/admin/approve/${id}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            const approveResult = await approveResponse.json();
+            
+            if (approveResult.success) {
+              alert('留言已回复并批准');
+              location.reload();
+            } else {
+              alert('批准失败: ' + approveResult.message);
+            }
+          } else {
+            alert('回复失败: ' + replyResult.message);
+          }
+        } catch (error) {
+          alert('操作出错: ' + error.message);
+        }
+      });
+    });
+  });
+</script>
+
+<%- include('../partials/footer') %> 

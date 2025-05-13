@@ -1,0 +1,18 @@
+<%- include('partials/header') %>
+
+<section class="error-section glass-card">
+  <div class="error-container">
+    <div class="error-icon">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <h2 class="error-title"><%= title %></h2>
+    <p class="error-message"><%= message %></p>
+    <div class="error-actions">
+      <a href="/" class="btn btn-primary">
+        <i class="fas fa-home"></i> 返回首页
+      </a>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %> 
