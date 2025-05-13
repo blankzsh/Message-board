@@ -137,8 +137,8 @@ npm run sass
 
 如有任何问题或建议，请通过以下方式联系我：
 
-- 电子邮件：[your-email@example.com](mailto:your-email@example.com)
-- 项目Issues: [GitHub Issues](https://github.com/yourusername/message-board/issues)
+- 电子邮件：[your-email@example.com](mailto:livebask@gmail.com)
+- 项目Issues: [GitHub Issues](https://github.com/blankzsh/message-board/issues)
 
 ---
 
