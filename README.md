@@ -2,7 +2,7 @@
 
 一个美观、功能完善的留言板系统，基于Express和SQLite构建，具有现代化UI设计和完整的管理功能。
 
-![留言板预览](https://via.placeholder.com/800x400?text=留言板预览)
+![留言板预览](https://pic1.imgdb.cn/item/68235d5f58cb8da5c8f0b066.png)
 
 ## 功能特点
 
@@ -38,8 +38,8 @@
 
 1. 克隆仓库到本地
 ```bash
-git clone <仓库地址> 留言板
-cd 留言板
+git clone https://github.com/blankzsh/Message-board.git
+cd Message-board
 ```
 
 2. 安装依赖
@@ -51,9 +51,9 @@ pnpm install
 
 3. 启动应用
 ```bash
-npm start
+pnpm start
 # 开发模式启动
-npm run dev
+pnpm run dev
 ```
 
 4. 访问应用
@@ -111,7 +111,7 @@ npm run dev
 
 ```bash
 # 编译SCSS文件
-npm run sass
+pnpm run sass
 ```
 
 ### 添加新功能
@@ -137,7 +137,7 @@ npm run sass
 
 如有任何问题或建议，请通过以下方式联系我：
 
-- 电子邮件：[your-email@example.com](mailto:livebask@gmail.com)
+- 电子邮件：[livebask@gmail.com](mailto:livebask@gmail.com)
 - 项目Issues: [GitHub Issues](https://github.com/blankzsh/message-board/issues)
 
 ---
